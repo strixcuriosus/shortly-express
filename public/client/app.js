@@ -23,10 +23,20 @@ window.Shortly = Backbone.View.extend({
 
   renderIndexView: function(e){
     e && e.preventDefault();
+    console.log("Cookie:", document.cookie);
+    if (!document.cookie) {
+      this.router.navigate('/logout', { trigger: true });
+      return;
+    }
     this.router.navigate('/', { trigger: true });
   },
 
   renderCreateView: function(e){
+    console.log("Cookie:", document.cookie);
+    if (!document.cookie) {
+      this.router.navigate('/logout', { trigger: true });
+      return;
+    }
     e && e.preventDefault();
     this.router.navigate('/create', { trigger: true });
   },

@@ -20,8 +20,16 @@ app.configure(function() {
   app.use(express.bodyParser())
   app.use(express.static(__dirname + '/public'));
   app.use(cookieParser());
-  app.use(session({secret: 'keyboard cat'}));
+  app.use(session({
+                  secret: 'keyboard cat',
+                  cookie: {httpOnly: false},
+                  key: 'cookie.sid'
+                 }));
 });
+
+
+
+
 
 app.get('/', function(req, res) {
   util.checkSession(req,res, function(req,res) {
@@ -36,6 +44,7 @@ app.get('/create', function(req, res) {
 });
 
 app.get('/links', function(req, res) {
+  console.log("gets here");
   util.checkSession(req,res, function(req,res) {
     Links.reset().fetch().then(function(links) {
       res.send(200, links.models);
@@ -44,9 +53,8 @@ app.get('/links', function(req, res) {
 });
 
 app.get('/logout', function(req, res) {
-  req.session.destroy(function(){
-    res.redirect('/login');
-  });
+  req.session.destroy();
+  res.render('logout');
 });
 
 app.post('/links', function(req, res) {
@@ -93,23 +101,12 @@ app.get('/signup', function(req, res) {
 });
 
 app.get('/login', function(req, res) {
-    console.log('gets to login');
-  util.redirectIfLoggedIn(req,res, function(res) {
-    console.log('gets to login inner function');
-    res.render('login');
-  });
+  console.log('gets to login inner function');
+  res.render('login');
 });
 
 
-
 app.post('/signup', function(req, res) {
-  // look at the user name and password provided -figure out how this is sent , check the req body
-  // check against the db that the username doesn't already exist - *EC* check with every letter if it exists
-  // if it doesn't, then we add it to the database *EC* send user to confirmation page
-  // password - hash the password, using bcrypt, which handles the salting!
-  // redirect to the index
-  // console.log(req.body);
-
 
   new User({username:req.body.username}).fetch().then(function(found){
     if (found) {
@@ -131,6 +128,7 @@ app.post('/signup', function(req, res) {
 
 app.post('/login', function(req, res) {
   // session creation
+
 
   // check the username and password against the db
   new User ({
